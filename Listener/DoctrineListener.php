@@ -14,6 +14,7 @@ use Austral\ElasticSearchBundle\Configuration\ElasticSearchConfiguration;
 use Austral\ElasticSearchBundle\Services\ElasticSearch;
 use Austral\EntityBundle\Entity\Interfaces\TranslateChildInterface;
 use Austral\ToolsBundle\AustralTools;
+use Doctrine\Bundle\DoctrineBundle\Attribute\AsDoctrineListener;
 use Doctrine\Common\EventArgs;
 use Doctrine\Common\EventSubscriber;
 use Doctrine\ORM\Event\LifecycleEventArgs;
@@ -24,6 +25,9 @@ use Doctrine\ORM\Events;
  * @author Matthieu Beurel <matthieu@austral.dev>
  * @final
  */
+#[AsDoctrineListener(event: 'preRemove', connection: 'default')]
+#[AsDoctrineListener(event: 'postUpdate', connection: 'default')]
+#[AsDoctrineListener(event: 'postPersist', connection: 'default')]
 class DoctrineListener implements EventSubscriber
 {
 
