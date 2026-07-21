@@ -310,7 +310,6 @@ Class ElasticSearch
     $elasticSearchHydrateEvent = new ElasticSearchHydrateObjectEvent($object, array(
       "index" =>  array(
         "_index"  =>  $this->elasticSearchConfiguration->get("index_name"),
-        "_type"   =>  $indexType,
         "_id"     =>  $elasticSearchObjectId
       )
     ), $valuesParameters);

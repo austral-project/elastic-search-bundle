@@ -19,7 +19,7 @@
 
     "symfony/config":                         "^5.4 || ^6.4",
     "symfony/event-dispatcher":               "^5.4 || ^6.4",
-    "elasticsearch/elasticsearch":            "^v7.17.0"
+    "elasticsearch/elasticsearch":            "^v8.19.0"
   },
   "require-dev": {
   },
