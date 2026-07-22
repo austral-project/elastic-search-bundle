@@ -35,6 +35,9 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 
 use Elasticsearch\ClientBuilder;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpFoundation\Session\Session;
 
 /**
  * Austral ElasticSearch Services.
@@ -99,6 +102,20 @@ Class ElasticSearch
     }
     $this->client = $clientBuilder->build();
     $this->mapping = $mapping;
+  }
+
+  /**
+   * createRequest
+   *
+   * @param RequestStack $requestStack
+   * @return $this
+   */
+  public function createRequest(RequestStack $requestStack): static
+  {
+    $newRequest = new Request();
+    $newRequest->setSession(new Session());
+    $requestStack->push($newRequest);
+    return $this;
   }
 
   /**

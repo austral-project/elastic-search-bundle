@@ -75,6 +75,7 @@ EOF
   {
     try {
       $elasticSearch = $this->container->get('austral.elastic_search')->setIo($this->io);
+      $elasticSearch->createRequest($this->container->get('request_stack'));
       if($input->getOption("drop"))
       {
         $elasticSearch->dropIndex();
