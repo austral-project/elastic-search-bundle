@@ -1,6 +1,10 @@
 Changelog
 =========
 
+### Version 3.2.0 (2026-07-22)
+* Updated bundles version to 3.2
+* Added compatibility for use with Elasticsearch 8.x
+
 ### Version 3.1.0 (2022-09-17)
 * Updated bundles version to 3.1
 * Changed the method check if object is a TranslateChildInterface`

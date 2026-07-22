@@ -28,13 +28,16 @@ use Austral\EntityTranslateBundle\Mapping\EntityTranslateMapping;
 use Austral\ElasticSearchBundle\Model\DataHydrate;
 use Austral\ToolsBundle\AustralTools;
 use Austral\ToolsBundle\Traits\IoTrait;
-use Elasticsearch\Client;
+use Elastic\Elasticsearch\Client;
+use Elastic\Elasticsearch\ClientBuilder;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
-use Elasticsearch\ClientBuilder;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpFoundation\Session\Session;
 
 /**
  * Austral ElasticSearch Services.
@@ -99,6 +102,20 @@ Class ElasticSearch
     }
     $this->client = $clientBuilder->build();
     $this->mapping = $mapping;
+  }
+
+  /**
+   * createRequest
+   *
+   * @param RequestStack $requestStack
+   * @return $this
+   */
+  public function createRequest(RequestStack $requestStack): static
+  {
+    $newRequest = new Request();
+    $newRequest->setSession(new Session());
+    $requestStack->push($newRequest);
+    return $this;
   }
 
   /**
@@ -543,7 +560,7 @@ Class ElasticSearch
     $results = $this->client->search($elasticSearchEvent->getElasticSearchParameters());
 
     $searchResult = new Results();
-    $searchResult->initValues($results);
+    $searchResult->initValues($results->asArray());
 
     $searchResult->setNbResults($count);
     return $searchResult;

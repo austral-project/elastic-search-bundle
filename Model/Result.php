@@ -45,9 +45,9 @@ class Result
   protected string $_index;
 
   /**
-   * @var string
+   * @var string|null
    */
-  protected string $_type;
+  protected ?string $_type = null;
 
   /**
    * @var string|null
