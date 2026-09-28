@@ -10,6 +10,7 @@
 
 namespace Austral\ElasticSearchBundle\Command;
 
+use Austral\ToolsBundle\AustralTools;
 use Austral\ToolsBundle\Command\Base\Command;
 use Austral\ToolsBundle\Command\Exception\CommandException;
 
@@ -91,7 +92,7 @@ EOF
       if($query = $input->getOption("search"))
       {
         $searchResult = $elasticSearch->searchByQuery($query);
-        dump($searchResult);
+        AustralTools::dump($searchResult);
       }
     }
     catch (Exception $e) {
