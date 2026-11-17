@@ -12,7 +12,7 @@ namespace Austral\ElasticSearchBundle\Listener;
 
 use Austral\ElasticSearchBundle\Configuration\ElasticSearchConfiguration;
 use Austral\ElasticSearchBundle\Services\ElasticSearch;
-use Austral\EntityBundle\Entity\Interfaces\TranslateChildInterface;
+use Austral\Contracts\Translate\TranslateChildInterface;
 use Austral\ToolsBundle\AustralTools;
 use Doctrine\Bundle\DoctrineBundle\Attribute\AsDoctrineListener;
 use Doctrine\Common\EventArgs;

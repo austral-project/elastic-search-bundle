@@ -10,7 +10,7 @@
 
 namespace Austral\ElasticSearchBundle\Event;
 
-use Austral\EntityBundle\Entity\EntityInterface;
+use Austral\Contracts\Entity\EntityInterface;
 use Austral\ToolsBundle\AustralTools;
 use Symfony\Contracts\EventDispatcher\Event;
 

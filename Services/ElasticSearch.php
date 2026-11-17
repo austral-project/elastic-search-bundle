@@ -10,7 +10,7 @@
 
 namespace Austral\ElasticSearchBundle\Services;
 
-use Austral\ElasticSearchBundle\Annotation\ElasticSearchField;
+use Austral\ElasticSearchBundle\Attribute\ElasticSearchField;
 use Austral\ElasticSearchBundle\Configuration\ElasticSearchConfiguration;
 use Austral\ElasticSearchBundle\Event\ElasticSearchEvent;
 use Austral\ElasticSearchBundle\Event\ElasticSearchHydrateObjectEvent;
@@ -19,7 +19,7 @@ use Austral\ElasticSearchBundle\Mapping\ElasticSearchMapping;
 use Austral\ElasticSearchBundle\Model\ObjectToHydrate;
 use Austral\ElasticSearchBundle\Model\Result;
 use Austral\ElasticSearchBundle\Model\Results;
-use Austral\EntityBundle\Entity\EntityInterface;
+use Austral\Contracts\Entity\EntityInterface;
 use Austral\EntityBundle\EntityManager\EntityManager;
 use Austral\EntityBundle\Mapping\EntityMapping;
 use Austral\EntityBundle\Mapping\Mapping;

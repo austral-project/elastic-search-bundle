@@ -10,7 +10,7 @@
 
 namespace Austral\ElasticSearchBundle\Model;
 
-use Austral\EntityBundle\Entity\EntityInterface;
+use Austral\Contracts\Entity\EntityInterface;
 use Austral\ToolsBundle\AustralTools;
 
 /**

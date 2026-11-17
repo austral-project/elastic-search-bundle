@@ -10,8 +10,8 @@
 
 namespace Austral\ElasticSearchBundle\Model;
 
-use Austral\ElasticSearchBundle\Annotation\ElasticSearchField;
-use Austral\EntityBundle\Entity\EntityInterface;
+use Austral\ElasticSearchBundle\Attribute\ElasticSearchField;
+use Austral\Contracts\Entity\EntityInterface;
 use Austral\ToolsBundle\AustralTools;
 
 /**

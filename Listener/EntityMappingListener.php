@@ -10,11 +10,10 @@
 
 namespace Austral\ElasticSearchBundle\Listener;
 
-use Austral\ElasticSearchBundle\Annotation\ElasticSearch;
-use Austral\ElasticSearchBundle\Annotation\ElasticSearchField;
+use Austral\ElasticSearchBundle\Attribute\ElasticSearch;
+use Austral\ElasticSearchBundle\Attribute\ElasticSearchField;
 use Austral\ElasticSearchBundle\Mapping\ElasticSearchMapping;
-use Austral\EntityBundle\Annotation\AustralEntityAnnotationInterface;
-use Austral\EntityBundle\EntityAnnotation\EntityAnnotations;
+use Austral\EntityBundle\EntityAttributes\EntityAttributes;
 use Austral\EntityBundle\Event\EntityMappingEvent;
 use Austral\EntityBundle\Mapping\EntityMapping;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -41,51 +40,47 @@ class EntityMappingListener
 
 
   /**
-   * @param EntityMappingEvent $entityAnnotationEvent
+   * @param EntityMappingEvent $entityMappingEvent
    *
    * @return void
    * @throws \Exception
    */
-  public function mapping(EntityMappingEvent $entityAnnotationEvent)
+  public function mapping(EntityMappingEvent $entityMappingEvent): void
   {
-    $initialiseEntitesAnnotations = $entityAnnotationEvent->getEntitiesAnnotations();
-
     /**
-     * @var EntityAnnotations $entityAnnotation
+     * @var EntityAttributes $entityAttribute
      */
-    foreach($initialiseEntitesAnnotations->all() as $entityAnnotation)
+    foreach($entityMappingEvent->getEntitiesAttributes()->all() as $entityAttribute)
     {
-      if(array_key_exists(ElasticSearch::class, $entityAnnotation->getClassAnnotations()))
+      $classAttributes = $entityAttribute->getClassAttributes();
+      if(array_key_exists(ElasticSearch::class, $classAttributes))
       {
-        if(!$entityMapping = $entityAnnotationEvent->getMapping()->getEntityMapping($entityAnnotation->getClassname()))
+        if(!$entityMapping = $entityMappingEvent->getMapping()->getEntityMapping($entityAttribute->getClassname()))
         {
-          $entityMapping = new EntityMapping($entityAnnotation->getClassname(), $entityAnnotation->getSlugger());
+          $entityMapping = new EntityMapping($entityAttribute->getClassname(), $entityAttribute->getSlugger());
         }
 
-        $elasticSearchMapping = new ElasticSearchMapping($entityAnnotation->getClassAnnotations()[ElasticSearch::class]->name);
+        /** @var ElasticSearch $elasticSearchAttribute */
+        $elasticSearchAttribute = $classAttributes[ElasticSearch::class];
+        $elasticSearchMapping = new ElasticSearchMapping($elasticSearchAttribute->name);
 
-        foreach($entityAnnotation->getClassAnnotations()[ElasticSearch::class]->fieldAnnotations as $fieldAnnotation)
+        foreach($elasticSearchAttribute->fieldAttributes as $fieldAttribute)
         {
-          if($fieldAnnotation instanceof ElasticSearchField)
+          if($fieldAttribute instanceof ElasticSearchField)
           {
-            $elasticSearchMapping->addFieldAnnotation($fieldAnnotation);
+            $elasticSearchMapping->addFieldAnnotation($fieldAttribute);
           }
         }
 
-        /** @var array $fieldsAnnotation */
-        foreach($entityAnnotation->getFieldsAnnotations() as $fieldsAnnotation)
+        foreach($entityAttribute->getFieldsAttributes() as $fieldAttributes)
         {
-          /** @var AustralEntityAnnotationInterface $fieldAnnotation */
-          foreach($fieldsAnnotation as $classFieldAnnotation => $fieldAnnotation)
+          if(array_key_exists(ElasticSearchField::class, $fieldAttributes))
           {
-            if($classFieldAnnotation === ElasticSearchField::class)
-            {
-              $elasticSearchMapping->addFieldAnnotation($fieldAnnotation);
-            }
+            $elasticSearchMapping->addFieldAnnotation($fieldAttributes[ElasticSearchField::class]);
           }
         }
         $entityMapping->addEntityClassMapping($elasticSearchMapping);
-        $entityAnnotationEvent->getMapping()->addEntityMapping($entityAnnotation->getClassname(), $entityMapping);
+        $entityMappingEvent->getMapping()->addEntityMapping($entityAttribute->getClassname(), $entityMapping);
       }
     }
   }

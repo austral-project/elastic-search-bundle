@@ -10,8 +10,8 @@
 
 namespace Austral\ElasticSearchBundle\Mapping;
 
-use Austral\ElasticSearchBundle\Annotation\ElasticSearchField;
-use Austral\EntityBundle\Annotation\AustralEntityAnnotationInterface;
+use Austral\ElasticSearchBundle\Attribute\ElasticSearchField;
+use Austral\EntityBundle\Attribute\AustralEntityAttributeInterface;
 use Austral\EntityBundle\Mapping\EntityClassMapping;
 
 /**
@@ -42,11 +42,11 @@ final Class ElasticSearchMapping extends EntityClassMapping
   }
 
   /**
-   * @param AustralEntityAnnotationInterface $entityAnnotation
+   * @param AustralEntityAttributeInterface $entityAnnotation
    *
    * @return ElasticSearchMapping
    */
-  public function addFieldAnnotation(AustralEntityAnnotationInterface $entityAnnotation): ElasticSearchMapping
+  public function addFieldAnnotation(AustralEntityAttributeInterface $entityAnnotation): ElasticSearchMapping
   {
     if($entityAnnotation->getKeyname() === ElasticSearchField::NAME_EXTRA_CONTENT)
     {
