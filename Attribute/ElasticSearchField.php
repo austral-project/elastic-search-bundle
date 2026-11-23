@@ -24,19 +24,18 @@ use Austral\EntityBundle\Attribute\AustralEntityAttribute;
 final class ElasticSearchField extends AustralEntityAttribute
 {
 
-  const INDEX_TYPE = "index_type";
-  const OBJECT_NAME = "object_type";
-
-  const NAME_TITLE = "title";
-  const NAME_REF_H1 = "ref_h1";
-  const NAME_REF_TITLE = "ref_title";
-  const NAME_REF_DESCRIPTION = "ref_description";
-  const NAME_REF_URL = "ref_url";
-  const NAME_STATUS = "status";
-  const NAME_CONTENT = "content";
-  const NAME_LANGUAGE = "language";
-  const NAME_UPDATE = "update";
-  const NAME_EXTRA_CONTENT = "extra_content";
+  const string INDEX_TYPE = "index_type";
+  const string OBJECT_NAME = "object_type";
+  const string NAME_TITLE = "title";
+  const string NAME_REF_H1 = "ref_h1";
+  const string NAME_REF_TITLE = "ref_title";
+  const string NAME_REF_DESCRIPTION = "ref_description";
+  const string NAME_REF_URL = "ref_url";
+  const string NAME_STATUS = "status";
+  const string NAME_CONTENT = "content";
+  const string NAME_LANGUAGE = "language";
+  const string NAME_UPDATE = "update";
+  const string NAME_EXTRA_CONTENT = "extra_content";
 
   /**
    * @param string|null $name
@@ -46,13 +45,10 @@ final class ElasticSearchField extends AustralEntityAttribute
    */
   public function __construct(
     public ?string $name = null,
-    ?string $keyname = null,
+    public ?string $keyname = null,
     public ?string $value = null,
     public ?string $mappingType = null
   ) {
-    if($keyname) {
-      $this->keyname = $keyname;
-    }
   }
 
 }
