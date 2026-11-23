@@ -1,0 +1,57 @@
+services:
+  _defaults:
+    autowire:       true
+    autoconfigure:  true
+    public:         true
+
+
+##### Services
+  Austral\ElasticSearchBundle\Services\ElasticSearch:
+    class: Austral\ElasticSearchBundle\Services\ElasticSearch
+    arguments:
+      - "@service_container"
+      - "@event_dispatcher"
+      - "@austral.entity_manager"
+      - "@austral.elastic_search.config"
+      - "@austral.entity.mapping"
+  austral.elastic_search:
+    alias:        Austral\ElasticSearchBundle\Services\ElasticSearch
+    public:       true
+
+  Austral\ElasticSearchBundle\Configuration\ElasticSearchConfiguration:
+    class:        Austral\ElasticSearchBundle\Configuration\ElasticSearchConfiguration
+    arguments:
+      - "%austral_elastic_search_config%"
+  austral.elastic_search.config:
+    alias:        Austral\ElasticSearchBundle\Configuration\ElasticSearchConfiguration
+    public:       true
+
+##### Austral Listener
+  Austral\ElasticSearchBundle\Listener\EntityMappingListener:
+    arguments:
+      - "@service_container"
+    tags:
+      - { name: kernel.event_listener, event: "austral.event.entity.initialise.mapping", method: mapping }
+  austral.elastic_search.entity_mapping.listener:
+    alias:        Austral\ElasticSearchBundle\Listener\EntityMappingListener
+    public:       true
+
+##### Doctrine Listener
+  Austral\ElasticSearchBundle\Listener\DoctrineListener:
+    tags:
+      - { name: doctrine.event_listener, event: postPersist, connection: default }
+      - { name: doctrine.event_listener, event: postUpdate, connection: default }
+      - { name: doctrine.event_listener, event: preRemove, connection: default }
+  austral.elastic_search.doctrine.listener:
+    alias:        Austral\ElasticSearchBundle\Listener\DoctrineListener
+    public:       true
+
+##### Austral Event Subscriber
+  Austral\ElasticSearchBundle\EventSubscriber\ElasticSearchSelectObjectsEventSubscriber:
+    class:        Austral\ElasticSearchBundle\EventSubscriber\ElasticSearchSelectObjectsEventSubscriber
+    tags:
+      - { name: kernel.event_subscriber}
+  austral.elastic_search.select_objects.event_subscriber:
+    alias:        Austral\ElasticSearchBundle\EventSubscriber\ElasticSearchSelectObjectsEventSubscriber
+    public:       true
+
