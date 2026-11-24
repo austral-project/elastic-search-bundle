@@ -32,8 +32,8 @@ use Elastic\Elasticsearch\Client;
 use Elastic\Elasticsearch\ClientBuilder;
 use Elastic\Elasticsearch\Response\Elasticsearch as ElasticsearchResponse;
 use Monolog\Handler\StreamHandler;
+use Monolog\Level;
 use Monolog\Logger;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -49,58 +49,54 @@ class ElasticSearch
   use IoTrait;
 
   /**
-   * @var ContainerInterface
+   * @var Client|null
    */
-  protected ContainerInterface $container;
+  protected ?Client $client = null;
 
   /**
-   * @var EventDispatcherInterface
-   */
-  protected EventDispatcherInterface $eventDispatcher;
-
-  /**
-   * @var EntityManager<object>
-   */
-  protected EntityManager $entityManager;
-
-  /**
-   * @var ElasticSearchConfiguration
-   */
-  protected ElasticSearchConfiguration $elasticSearchConfiguration;
-
-  /**
-   * @var Client
-   */
-  protected Client $client;
-
-  /**
-   * @var Mapping<object>
-   */
-  protected Mapping $mapping;
-
-  /**
-   * @param ContainerInterface         $container
    * @param EventDispatcherInterface   $eventDispatcher
    * @param EntityManager<object>      $entityManager
    * @param ElasticSearchConfiguration $elasticSearchConfiguration
    * @param Mapping<object>            $mapping
+   * @param string                     $logPath
+   * @param string                     $environment
    */
-  public function __construct(ContainerInterface $container, EventDispatcherInterface $eventDispatcher, EntityManager $entityManager, ElasticSearchConfiguration $elasticSearchConfiguration, Mapping $mapping)
+  public function __construct(
+    protected EventDispatcherInterface $eventDispatcher,
+    protected EntityManager $entityManager,
+    protected ElasticSearchConfiguration $elasticSearchConfiguration,
+    protected Mapping $mapping,
+    protected string $logPath,
+    protected string $environment
+  ) {
+  }
+
+  /**
+   * getClient
+   *
+   * @return Client
+   */
+  public function getClient(): Client
   {
-    $this->container = $container;
-    $this->eventDispatcher = $eventDispatcher;
-    $this->elasticSearchConfiguration = $elasticSearchConfiguration;
-    $this->entityManager = $entityManager;
+    return $this->client ??= $this->buildClient();
+  }
+
+  /**
+   * @return Client
+   *
+   * @throws \Elastic\Elasticsearch\Exception\AuthenticationException
+   */
+  protected function buildClient(): Client
+  {
     $clientBuilder = ClientBuilder::create()->setHosts($this->elasticSearchConfiguration->get('hosts'));
     if ($this->elasticSearchConfiguration->get('logger.enabled'))
     {
       $logger = new Logger('log');
-      $handler = new StreamHandler(sprintf('%s/elastic-search_%s.log', $this->container->getParameter('kernel.logs_dir'), $this->container->getParameter('kernel.debug') ? 'dev' : 'prod'), Logger::DEBUG);
-      $logger->pushHandler($handler);
+      $logger->pushHandler(new StreamHandler(sprintf('%s/elastic-search_%s.log', $this->logPath, $this->environment), Level::Debug));
       $clientBuilder->setLogger($logger);
     }
-    $this->client = $clientBuilder->build();
-    $this->mapping = $mapping;
+
+    return $clientBuilder->build();
   }
 
   /**
@@ -117,16 +113,6 @@ class ElasticSearch
     $requestStack->push($newRequest);
 
     return $this;
-  }
-
-  /**
-   * getClient
-   *
-   * @return Client
-   */
-  public function getClient(): Client
-  {
-    return $this->client;
   }
 
   /**
@@ -148,7 +134,7 @@ class ElasticSearch
     {
       try
       {
-        $this->client->indices()->delete($this->elasticSearchParameters());
+        $this->getClient()->indices()->delete($this->elasticSearchParameters());
         $this->viewMessage('Elastic Search - Drop index success');
       }
       catch (\Exception $e)
@@ -191,7 +177,7 @@ class ElasticSearch
       $this->eventDispatcher->dispatch($elasticSearchEvent, ElasticSearchEvent::EVENT_CREATE_INDEX);
       try
       {
-        $this->client->indices()->create($elasticSearchEvent->getElasticSearchParameters());
+        $this->getClient()->indices()->create($elasticSearchEvent->getElasticSearchParameters());
         $this->viewMessage('Elastic Search - Create index success');
       }
       catch (\Exception $e)
@@ -229,7 +215,7 @@ class ElasticSearch
         }
         if ($elasticSearchMappingProperties)
         {
-          $this->client->indices()->putMapping([
+          $this->getClient()->indices()->putMapping([
             'index' => $this->elasticSearchConfiguration->get('index_name'),
             'body' => [
               'properties' => $elasticSearchMappingProperties,
@@ -396,7 +382,7 @@ class ElasticSearch
     {
       if (count($elasticSearchParameters) > 0)
       {
-        $response = $this->client->bulk($elasticSearchParameters);
+        $response = $this->getClient()->bulk($elasticSearchParameters);
         if ($response['errors'])
         {
           throw new \Exception("Hydrate is failed -> {$response['errors']}");
@@ -473,7 +459,7 @@ class ElasticSearch
     {
       foreach ($elasticSearchParameters as $parametersIndex)
       {
-        $this->client->delete($parametersIndex);
+        $this->getClient()->delete($parametersIndex);
         ++$nbItemsDeleted;
       }
       $this->viewMessage("Elastic Search - Delete success -> {$nbItemsDeleted}/{$nbItems} item(s) deleted");
@@ -499,8 +485,15 @@ class ElasticSearch
    *
    * @throws \Exception
    */
-  public function searchByQuery(string $query, int $offset = 0, int $limit = 20, ?string $language = null, ?string $keyname = null, array $sort = [], array $body = []): Results
-  {
+  public function searchByQuery(
+    string $query,
+    int $offset = 0,
+    int $limit = 20,
+    ?string $language = null,
+    ?string $keyname = null,
+    array $sort = [],
+    array $body = []
+  ): Results {
     $filters = [
       'bool' => [
         'must' => [
@@ -536,8 +529,14 @@ class ElasticSearch
    *
    * @throws \Exception
    */
-  public function searchByFiltres(array $filtres = [], int $offset = 0, int $limit = 20, ?string $keyname = null, array $sort = [], array $body = []): Results
-  {
+  public function searchByFiltres(
+    array $filtres = [],
+    int $offset = 0,
+    int $limit = 20,
+    ?string $keyname = null,
+    array $sort = [],
+    array $body = []
+  ): Results {
     $count = $this->countByFilter($filtres, $keyname, $body);
     if (!array_key_exists('highlight', $body))
     {
@@ -573,7 +572,7 @@ class ElasticSearch
     $elasticSearchEvent = new ElasticSearchEvent($this->elasticSearchConfiguration->get('index_name'), $parameters, $keyname);
     $this->eventDispatcher->dispatch($elasticSearchEvent, ElasticSearchEvent::EVENT_FILTER);
 
-    $results = $this->client->search($elasticSearchEvent->getElasticSearchParameters());
+    $results = $this->getClient()->search($elasticSearchEvent->getElasticSearchParameters());
 
     $searchResult = new Results();
     $searchResult->initValues($results->asArray());
@@ -608,7 +607,7 @@ class ElasticSearch
     ];
     $elasticSearchEvent = new ElasticSearchEvent($this->elasticSearchConfiguration->get('index_name'), $parameters, $keyname);
     $this->eventDispatcher->dispatch($elasticSearchEvent, ElasticSearchEvent::EVENT_FILTER);
-    $countResponse = $this->client->count($elasticSearchEvent->getElasticSearchParameters());
+    $countResponse = $this->getClient()->count($elasticSearchEvent->getElasticSearchParameters());
 
     return $countResponse['count'];
   }
@@ -620,7 +619,7 @@ class ElasticSearch
    */
   private function indexExists(): bool
   {
-    $response = $this->client->indices()->exists($this->elasticSearchParameters());
+    $response = $this->getClient()->indices()->exists($this->elasticSearchParameters());
 
     return $response instanceof ElasticsearchResponse && $response->asBool();
   }

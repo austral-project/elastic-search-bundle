@@ -11,12 +11,15 @@
 
 namespace Austral\ElasticSearchBundle\Command;
 
+use Austral\ElasticSearchBundle\Services\ElasticSearch;
 use Austral\ToolsBundle\AustralTools;
 use Austral\ToolsBundle\Command\Base\Command;
 use Austral\ToolsBundle\Command\Exception\CommandException;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Style\SymfonyStyle;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
  * Austral Initialise ElasticSearch Command.
@@ -30,17 +33,12 @@ class ElasticSearchCommand extends Command
   /**
    * @var string
    */
-  protected static $defaultName = 'austral:elastic-search';
-
-  /**
-   * @var string
-   */
   protected string $titleCommande = 'Elastic Search command';
 
   /**
    * {@inheritdoc}
    */
-  protected function configure()
+  protected function configure(): void
   {
     $this
       ->setDefinition([
@@ -65,6 +63,23 @@ class ElasticSearchCommand extends Command
   }
 
   /**
+   * ElasticSearchCommand constructor
+   *
+   * @param ElasticSearch $elasticSearch
+   * @param RequestStack  $requestStack
+   * @param string|null   $name
+   * @param callable|null $code
+   */
+  public function __construct(
+    protected ElasticSearch $elasticSearch,
+    protected RequestStack $requestStack,
+    ?string $name = null,
+    ?callable $code = null
+  ) {
+    parent::__construct($name, $code);
+  }
+
+  /**
    * @param InputInterface  $input
    * @param OutputInterface $output
    *
@@ -75,23 +90,26 @@ class ElasticSearchCommand extends Command
   {
     try
     {
-      $elasticSearch = $this->container->get('austral.elastic_search')->setIo($this->io);
-      $elasticSearch->createRequest($this->container->get('request_stack'));
+      if ($this->io instanceof SymfonyStyle)
+      {
+        $this->elasticSearch->setIo($this->io);
+      }
+      $this->elasticSearch->createRequest($this->requestStack);
       if ($input->getOption('drop'))
       {
-        $elasticSearch->dropIndex();
+        $this->elasticSearch->dropIndex();
       }
       if ($input->getOption('create'))
       {
-        $elasticSearch->createIndex();
+        $this->elasticSearch->createIndex();
       }
       if ($input->getOption('hydrate'))
       {
-        $elasticSearch->hydrate();
+        $this->elasticSearch->hydrate();
       }
       if ($query = $input->getOption('search'))
       {
-        $searchResult = $elasticSearch->searchByQuery($query);
+        $searchResult = $this->elasticSearch->searchByQuery($query);
         AustralTools::dump($searchResult);
       }
     }

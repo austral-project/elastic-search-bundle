@@ -41,11 +41,6 @@ class Results
   protected array $searchObjects = [];
 
   /**
-   * @var array<string, mixed>
-   */
-  protected array $_shards = [];
-
-  /**
    * SearchResults constructor.
    */
   public function __construct()

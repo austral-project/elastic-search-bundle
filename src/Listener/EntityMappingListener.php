@@ -16,7 +16,6 @@ use Austral\ElasticSearchBundle\Attribute\ElasticSearchField;
 use Austral\ElasticSearchBundle\Mapping\ElasticSearchMapping;
 use Austral\EntityBundle\Event\EntityMappingEvent;
 use Austral\EntityBundle\Mapping\EntityMapping;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Austral EntityMapping Listener.
@@ -25,19 +24,6 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  */
 class EntityMappingListener
 {
-  /**
-   * @var ContainerInterface
-   */
-  protected ContainerInterface $container;
-
-  /**
-   * @param ContainerInterface $container
-   */
-  public function __construct(ContainerInterface $container)
-  {
-    $this->container = $container;
-  }
-
   /**
    * @param EntityMappingEvent<object> $entityMappingEvent
    *

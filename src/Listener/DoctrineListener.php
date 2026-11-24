@@ -29,22 +29,12 @@ use Doctrine\ORM\Event\PreRemoveEventArgs;
 class DoctrineListener
 {
   /**
-   * @var ElasticSearchConfiguration
-   */
-  protected ElasticSearchConfiguration $elasticSearchConfiguration;
-
-  /**
-   * @var ElasticSearch
-   */
-  protected ElasticSearch $elasticSearch;
-
-  /**
    * DoctrineListener constructor.
    */
-  public function __construct(ElasticSearch $elasticSearch, ElasticSearchConfiguration $elasticSearchConfiguration)
-  {
-    $this->elasticSearch = $elasticSearch;
-    $this->elasticSearchConfiguration = $elasticSearchConfiguration;
+  public function __construct(
+    protected ElasticSearch $elasticSearch,
+    protected ElasticSearchConfiguration $elasticSearchConfiguration
+  ) {
   }
 
   /**

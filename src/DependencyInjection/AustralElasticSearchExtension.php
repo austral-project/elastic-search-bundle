@@ -38,10 +38,9 @@ class AustralElasticSearchExtension extends Extension
     $defaultConfig = $configuration->getConfigDefault();
     $config = array_replace_recursive($defaultConfig, $config);
 
-    $container->setParameter('austral_elastic_search_config', $config);
+    $container->setParameter('austral_elastic_search', $config);
 
     $loader = new YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
-    $loader->load('parameters.yaml');
     $loader->load('services.yaml');
     $loader->load('command.yaml');
   }
@@ -51,6 +50,6 @@ class AustralElasticSearchExtension extends Extension
    */
   public function getNamespace(): string
   {
-    return 'https://austral.app/schema/dic/austral_elastic_search';
+    return 'https://austral.dev/schema/dic/austral_elastic_search';
   }
 }

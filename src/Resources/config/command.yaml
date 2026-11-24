@@ -1,9 +1,11 @@
 services:
-  _defaults:
-    public:       false
 
 ##### Command to Elastic Search index
-  austral.elastic_search.command:
-    class:        Austral\ElasticSearchBundle\Command\ElasticSearchCommand
+  Austral\ElasticSearchBundle\Command\ElasticSearchCommand:
+    arguments:
+      $elasticSearch: '@austral.elastic_search'
+      $requestStack: '@request_stack'
+    calls:
+      - [ setEventDispatcher, [ '@event_dispatcher' ] ]
     tags:
       - { name: console.command, command: "austral:elastic-search" }

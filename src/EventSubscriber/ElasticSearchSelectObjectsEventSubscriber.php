@@ -25,13 +25,6 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 class ElasticSearchSelectObjectsEventSubscriber implements EventSubscriberInterface
 {
   /**
-   * ControllerListener constructor.
-   */
-  public function __construct()
-  {
-  }
-
-  /**
    * @return array<string, array{0: string, 1: int}>
    */
   public static function getSubscribedEvents(): array
@@ -46,7 +39,7 @@ class ElasticSearchSelectObjectsEventSubscriber implements EventSubscriberInterf
    *
    * @return void
    */
-  public function objects(ElasticSearchSelectObjectsEvent $elasticSearchSelectObjectsEvent)
+  public function objects(ElasticSearchSelectObjectsEvent $elasticSearchSelectObjectsEvent): void
   {
     if (!$elasticSearchSelectObjectsEvent->getObjectsToHydrate())
     {
