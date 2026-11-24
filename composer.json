@@ -49,6 +49,9 @@
     "austral/website-bundle": "^4.0"
   },
   "config": {
+    "allow-plugins": {
+      "php-http/discovery": true
+    },
     "sort-packages": true
   },
   "autoload": {
